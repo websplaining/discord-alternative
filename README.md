@@ -1,8 +1,6 @@
-# discord-alternative
+# [discord-alternative](https://discord-alternative.com)
 
 Modern single-page site for self hosted voice chat - Mumble and TeamSpeak on a VPS you own.
-
-**Live site:** https://discord-alternative.com
 
 ![discord-alternative.com](screenshot.png)
 
@@ -18,12 +16,9 @@ Ditch Discord. A VPS and ten minutes gets you a Mumble or TeamSpeak server you a
 
 ## VPS host picks
 
-The two hosts these guides run on:
+The two hosts these guides run on (click the logos):
 
-[<img src="assets/img/contabo.webp" alt="Contabo" width="150">](https://websplaining.com/contabo) &nbsp;&nbsp; [<img src="assets/img/kamatera-blue.png" alt="Kamatera" width="150">](https://kamatera.sjv.io/c/1245219/3024352/36439)
-
-- **Contabo** - best price per GB, from $5.50/mo → https://websplaining.com/contabo
-- **Kamatera** - hourly billing, from $4/mo → https://kamatera.sjv.io/c/1245219/3024352/36439
+[<img src="assets/img/contabo.webp" alt="Contabo" width="90">](https://websplaining.com/contabo) &nbsp;&nbsp; [<img src="assets/img/kamatera-blue.png" alt="Kamatera" width="90">](https://kamatera.sjv.io/c/1245219/3024352/36439)
 
 *Disclosure: the host links above are affiliate referrals. They cost you nothing and keep this site ad free and tracker free.*
 
