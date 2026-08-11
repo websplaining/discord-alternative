@@ -1,4 +1,4 @@
-# [discord-alternative](https://discord-alternative.com)
+# [discord-alternative.com](https://discord-alternative.com)
 
 Modern single-page site for self hosted voice chat - Mumble and TeamSpeak on a VPS you own.
 
