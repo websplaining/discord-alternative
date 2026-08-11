@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ditch Discord - Self Host Mumble &amp; TeamSpeak on a VPS</title>
+<meta name="description" content="Self host Mumble and TeamSpeak on a VPS you own. ~20 MB RAM per server, sub-30 ms latency, from $4/mo. Ten-minute setup guides, host picks, and why Discord loses.">
+<meta name="theme-color" content="#05070a">
+<link rel="canonical" href="https://discord-alternative.com/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2305070a'/%3E%3Cpath d='M9 11h2v10H9zm4 0 8 5-8 5z' fill='%234ade80'/%3E%3C/svg%3E">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="discord-alternative.com">
+<meta property="og:locale" content="en_US">
+<meta property="og:title" content="Ditch Discord. Run your own voice server.">
+<meta property="og:description" content="Mumble and TeamSpeak on a VPS you own. No data harvesting, no Electron bloat, no bans, no outages. Ten minute setup.">
+<meta property="og:url" content="https://discord-alternative.com/">
+<meta property="og:image" content="https://discord-alternative.com/assets/img/og-card.png?v=3">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Ditch Discord. Own your voice. Self host Mumble and TeamSpeak on a VPS.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Ditch Discord. Run your own voice server.">
+<meta name="twitter:description" content="Mumble and TeamSpeak on a VPS you own. No data harvesting, no Electron bloat, no bans, no outages. Ten minute setup.">
+<meta name="twitter:image" content="https://discord-alternative.com/assets/img/og-card.png?v=3">
+<meta name="twitter:image:alt" content="Ditch Discord. Own your voice. Self host Mumble and TeamSpeak on a VPS.">
+<link rel="preconnect" href="https://i.ytimg.com" crossorigin>
+<link rel="preload" href="/assets/fonts/inter-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/jetbrains-mono-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/css/styles-v10.css">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebSite","name":"discord-alternative.com","url":"https://discord-alternative.com/","description":"Self host Mumble and TeamSpeak voice servers on a VPS you control. Setup guides, host comparisons, and why self hosting beats Discord."}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is Mumble?","acceptedAnswer":{"@type":"Answer","text":"Mumble is open source voice chat built for low latency and minimal overhead. The server software is called Murmur, it uses the Opus codec, supports positional audio in games, and idles around 20 MB of RAM."}},{"@type":"Question","name":"Mumble vs TeamSpeak - which should I pick?","acceptedAnswer":{"@type":"Answer","text":"Mumble if you want the lightest, lowest latency pure voice server. TeamSpeak 3 if you want the classic channel and permission server. TeamSpeak 6 if you want a Discord style layout with text channels, categories, and a friends list. Many groups run both: Mumble for ops, TS6 for the casual hangout."}},{"@type":"Question","name":"Do I need a VPS?","acceptedAnswer":{"@type":"Answer","text":"Yes. A Linux VPS you control is the point of self hosting - you rent the box, you own the server. Any 1 GB Debian or Ubuntu VPS runs Mumble or TeamSpeak 3 with room to spare."}},{"@type":"Question","name":"What does self hosting cost?","acceptedAnswer":{"@type":"Answer","text":"Just the VPS, typically $4-$6 per month - less than a single Discord Nitro subscription. The software is free: Mumble is open source, and TeamSpeak is free for personal and small clan use."}},{"@type":"Question","name":"Is self hosting really free?","acceptedAnswer":{"@type":"Answer","text":"The servers are free to run. You pay for the VPS hardware and for your time setting it up - roughly ten minutes per server. There are no per-user fees and nothing is behind a paywall like Nitro."}},{"@type":"Question","name":"Can I run all three servers at once?","acceptedAnswer":{"@type":"Answer","text":"Yes. Murmur, TeamSpeak 3, and TeamSpeak 6 all fit on a single 2 GB box: one IP, three ports, three communities if you want. Each has its own systemd service."}}]}
+</script>
+</head>
+<body>
+<a href="#main" class="skip">Skip to content</a>
+
+<div class="bg" aria-hidden="true">
+  <div class="bg-grid"></div>
+  <div class="bg-glow g1"></div>
+  <div class="bg-glow g2"></div>
+</div>
+
+<header class="site-header">
+  <nav class="nav" aria-label="Primary">
+    <a class="brand" href="#top" aria-label="discord-alternative.com home">
+      <span class="logo" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 9v6m0-3h8M13 9v6"/><path d="M16 9l5 3-5 3" fill="currentColor" stroke="none"/></svg></span>
+      discord<span class="dot">-</span>alternative
+    </a>
+    <button class="nav-toggle" aria-controls="nav-links" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+    </button>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="#servers">Servers</a></li>
+      <li><a href="#why">Why</a></li>
+      <li><a href="#compare">Compare</a></li>
+      <li><a href="#guides">Guides</a></li>
+      <li><a href="#hosts">Hosts</a></li>
+      <li class="nav-cta"><a class="btn btn-primary btn-sm" href="#guides">Get started</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main id="main">
+
+<!-- ============================= HERO ============================= -->
+<section class="hero" id="top">
+  <div class="center hero-inner">
+    <span class="pill reveal"><span class="dot"></span> self hosted voice &amp; chat</span>
+    <h1 class="reveal">Ditch Discord.<br>Run your <span class="glow">own voice</span> server.</h1>
+    <p class="lead reveal">A VPS and ten minutes gets you a Mumble or TeamSpeak server you actually own. No data harvesting, no Electron bloat, no account bans, no outages. Just crystal clear voice that stays up because <em>you</em> control it.</p>
+    <div class="btn-row reveal">
+      <a class="btn btn-primary" href="#guides" data-tab-link="mumble">Set up Mumble <span class="chev" aria-hidden="true">&rarr;</span></a>
+      <a class="btn" href="#guides" data-tab-link="ts3">Set up TeamSpeak</a>
+      <a class="btn btn-ghost" href="#why">Why Discord loses</a>
+    </div>
+
+    <ul class="stats reveal" aria-label="Key numbers">
+      <li><b>~20 MB</b><span>server RAM at idle</span></li>
+      <li><b>&lt;30 ms</b><span>typical voice latency</span></li>
+      <li><b>$4/mo</b><span>a VPS that runs it all</span></li>
+      <li><b>10 min</b><span>install to first connect</span></li>
+    </ul>
+
+    <div class="terminal reveal" aria-hidden="true">
+      <div class="bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="title">root@voice-host: ~</span></div>
+      <div class="body">
+        <span class="l l1"><span class="ps1">root@voice-host:~$</span> apt install mumble-server</span>
+        <span class="l l2 out"># 1 server. ~20 MB RAM. Your rules.</span>
+        <span class="l l3"><span class="ps1">root@voice-host:~$</span> systemctl enable --now mumble-server</span>
+        <span class="l l4"><span class="accent">[ OK ]</span> <span class="out">listening on 0.0.0.0:64738</span></span>
+        <span class="l l5"><span class="ps1">root@voice-host:~$</span> ufw allow 64738/udp<span class="cursor"></span></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================= SERVERS ============================= -->
+<section class="section" id="servers">
+  <div class="center">
+    <div class="sec-head reveal">
+      <span class="pill"><span class="dot"></span> pick your weapon</span>
+      <h2>Three servers. Zero middlemen.</h2>
+      <p>Every option on this page runs on a VPS you rent and control. No lock in, no subscription, no company reading your channels. Pick the shape that fits your group.</p>
+    </div>
+
+    <div class="grid grid-3">
+      <article class="card reveal">
+        <div class="tag"><span class="bracket">[</span> 01 <span class="bracket">]</span> lightweight voice</div>
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3v12"/><circle cx="12" cy="17" r="4"/><path d="M8 7a4 4 0 0 1 8 0"/></svg>
+        <h3>Mumble</h3>
+        <p>Open source, lowest latency, positional audio, ~20 MB RAM at idle. The pick for serious gaming and ops comms where you want the lightest thing that just works.</p>
+        <p><a class="card-link" href="#mumble">Mumble setup guide &rarr;</a></p>
+      </article>
+
+      <article class="card reveal">
+        <div class="tag"><span class="bracket">[</span> 02 <span class="bracket">]</span> classic community server</div>
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/><circle cx="18" cy="18" r="2"/></svg>
+        <h3>TeamSpeak 3</h3>
+        <p>The server browser era vibe. Channels, permissions, file transfer, query interface. Lighter than Mumble in some ways and used by clans for nearly two decades.</p>
+        <p><a class="card-link" href="#ts3">TeamSpeak 3 setup &rarr;</a></p>
+      </article>
+
+      <article class="card reveal">
+        <div class="tag"><span class="bracket">[</span> 03 <span class="bracket">]</span> discord shaped, self hosted</div>
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 5h7v14H5a2 2 0 0 1-2-2V5z"/><path d="M14 5h5a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-5z"/></svg>
+        <h3>TeamSpeak 6</h3>
+        <p>The new client. Channels and categories, text chat, friends list, voice. Discord's layout, except it lives on <em>your</em> server. Heavier than Mumble, full community platform.</p>
+        <p><a class="card-link" href="#ts6">TeamSpeak 6 setup &rarr;</a></p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============================= WHY ============================= -->
+<section class="section alt" id="why">
+  <div class="center">
+    <div class="sec-head reveal">
+      <span class="pill"><span class="dot"></span> tl;dr</span>
+      <h2>Why Discord loses</h2>
+      <p>Discord is convenient. It is also a closed, for-profit platform that scans your channels, ships a locked down client, and can nuke your community overnight. Self hosting flips all of that.</p>
+    </div>
+
+    <div class="why-grid">
+      <div class="why-item reveal">
+        <span class="why-num">01</span>
+        <div>
+          <h3>They read your channels</h3>
+          <p>Closed US backend, no end-to-end encryption, ML training on your content. Your "private" server is private only in the UI.</p>
+        </div>
+      </div>
+      <div class="why-item reveal">
+        <span class="why-num">02</span>
+        <div>
+          <h3>Your account is not yours</h3>
+          <p>One ban or hack takes every server, DM, and contact with it. There is no key you control and no appeal process that matters.</p>
+        </div>
+      </div>
+      <div class="why-item reveal">
+        <span class="why-num">03</span>
+        <div>
+          <h3>It's a browser wearing an app</h3>
+          <p>Chromium with extra steps. Hundreds of MB of RAM to render a chat window. Mumble's native client idles around 30 MB.</p>
+        </div>
+      </div>
+      <div class="why-item reveal">
+        <span class="why-num">04</span>
+        <div>
+          <h3>Voice routes through their edge</h3>
+          <p>Discord picks the region for you. A self hosted box sits next to your players and stays there. Deterministic, measurable, sub-30 ms.</p>
+        </div>
+      </div>
+      <div class="why-item reveal">
+        <span class="why-num">05</span>
+        <div>
+          <h3>You don't own the community</h3>
+          <p>Your server is a row in their database. Self host and you own the box, the backups, the limits, and the portability.</p>
+        </div>
+      </div>
+      <div class="why-item reveal">
+        <span class="why-num">06</span>
+        <div>
+          <h3>"Free" is a business model</h3>
+          <p>Your data and attention are the product. A $4-$6 VPS runs all three servers for less than one Nitro sub - and it's just a Linux box you can use for anything.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="stat-row reveal">
+      <div class="stat"><div class="v">~30 MB</div><div class="k">Mumble client idle</div></div>
+      <div class="stat bad"><div class="v">~400 MB</div><div class="k">Discord client idle</div></div>
+      <div class="stat"><div class="v">~20 MB</div><div class="k">Mumble server idle</div></div>
+      <div class="stat"><div class="v">$4-6</div><div class="k">vs $10 Nitro / month</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================= COMPARE ============================= -->
+<section class="section" id="compare">
+  <div class="center">
+    <div class="sec-head reveal">
+      <span class="pill"><span class="dot"></span> side by side</span>
+      <h2>How they actually compare</h2>
+      <p>No marketing fluff. The real differences that change which one you pick.</p>
+    </div>
+
+    <div class="cmp-wrap reveal">
+      <table class="cmp">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Discord</th>
+            <th>Mumble</th>
+            <th>TeamSpeak 3</th>
+            <th>TeamSpeak 6</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="col-feat">Self hosted</td><td class="center no">no</td><td class="center yes">yes</td><td class="center yes">yes</td><td class="center yes">yes</td></tr>
+          <tr><td class="col-feat">Own your data</td><td class="center no">no</td><td class="center yes">yes</td><td class="center yes">yes</td><td class="center yes">yes</td></tr>
+          <tr><td class="col-feat">Voice latency</td><td class="center me">med</td><td class="center yes">very low</td><td class="center yes">very low</td><td class="center yes">low</td></tr>
+          <tr><td class="col-feat">Text chat</td><td class="center yes">yes</td><td class="center me">basic</td><td class="center me">basic</td><td class="center yes">yes</td></tr>
+          <tr><td class="col-feat">Categories / channels</td><td class="center yes">yes</td><td class="center me">tree</td><td class="center me">tree</td><td class="center yes">yes</td></tr>
+          <tr><td class="col-feat">Friends / presence</td><td class="center yes">yes</td><td class="center no">no</td><td class="center me">manual</td><td class="center yes">yes</td></tr>
+          <tr><td class="col-feat">Server RAM at idle</td><td class="center me">&gt;300 MB</td><td class="center yes">~20 MB</td><td class="center yes">~40 MB</td><td class="center me">~120 MB</td></tr>
+          <tr><td class="col-feat">Open source server</td><td class="center no">no</td><td class="center yes">yes</td><td class="center no">no</td><td class="center no">no</td></tr>
+          <tr><td class="col-feat">Open source clients</td><td class="center no">no</td><td class="center yes">yes</td><td class="center yes">yes</td><td class="center yes">yes</td></tr>
+          <tr><td class="col-feat">Account bans affect you</td><td class="center no">yes</td><td class="center yes">no</td><td class="center yes">no</td><td class="center yes">no</td></tr>
+          <tr><td class="col-feat">Fits on a $5 VPS</td><td class="center no">n/a</td><td class="center yes">yes</td><td class="center yes">yes</td><td class="center me">tight</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ============================= GUIDES ============================= -->
+<section class="section alt" id="guides">
+  <div class="center">
+    <div class="sec-head reveal">
+      <span class="pill"><span class="dot"></span> do it in ten minutes</span>
+      <h2>Setup guides</h2>
+      <p>Each guide runs on any Debian or Ubuntu VPS with SSH access. Copy the commands, paste, done. Need a box first? <a href="#hosts">Pick a VPS host</a>.</p>
+    </div>
+
+    <div class="tabs reveal">
+      <div class="tab-bar" role="tablist" aria-label="Setup guides">
+        <button class="tab-btn active" id="tab-mumble" role="tab" aria-selected="true" aria-controls="panel-mumble" data-tab="mumble">Mumble</button>
+        <button class="tab-btn" id="tab-ts3" role="tab" aria-selected="false" aria-controls="panel-ts3" data-tab="ts3">TeamSpeak 3</button>
+        <button class="tab-btn" id="tab-ts6" role="tab" aria-selected="false" aria-controls="panel-ts6" data-tab="ts6">TeamSpeak 6</button>
+      </div>
+
+      <!-- ============ MUMBLE ============ -->
+      <div class="tab-panel" id="panel-mumble" role="tabpanel" aria-labelledby="tab-mumble">
+        <div class="panel-intro" id="mumble">
+          <h3>Mumble - open source voice, ~20 MB RAM</h3>
+          <p>Mumble is open source voice chat built for low latency and minimal overhead. The server is called <strong>Murmur</strong>, it speaks Opus, and it idles around 20 MB of RAM. The lightest, fastest thing that just works.</p>
+        </div>
+
+        <div class="video-wrap">
+          <div class="video-meta"><span class="live">&#9679;</span> walk-through <span class="yt">youtube</span></div>
+          <div class="video" data-yt="crHmLRJJG_A" data-title="How to self host a Mumble voice server on a VPS"></div>
+        </div>
+
+        <ol class="steps">
+          <li>
+            <h4>Install the server</h4>
+            <p>On Debian and Ubuntu the package is <code>mumble-server</code>. Some older docs call it <code>murmur</code> - same software, newer packaging.</p>
+            <div class="snippet">
+              <div class="label"><span class="file">install</span><button class="cpy" type="button">copy</button></div>
+<pre><span class="ps1">root@voice-host:~$</span> apt update
+<span class="ps1">root@voice-host:~$</span> apt install -y mumble-server
+<span class="out"># pulls in the binary, config, and a systemd unit named mumble-server</span></pre>
+            </div>
+          </li>
+
+          <li id="mumble-config">
+            <h4>Configure Murmur</h4>
+            <p>Edit <code>/etc/mumble-server.ini</code> and set the values that matter. The defaults work, but you want a few changed:</p>
+            <div class="snippet">
+              <div class="label"><span class="file">/etc/mumble-server.ini</span><button class="cpy" type="button">copy</button></div>
+<pre><span class="cmt"># name shown at the top of the channel tree</span>
+registerName=My Crew
+
+<span class="cmt"># welcome message shown on connect</span>
+welcometext="&lt;br /&gt;&lt;b&gt;welcome to my mumble&lt;/b&gt;&lt;br /&gt;mind your mic."
+
+<span class="cmt"># voice (UDP) and control (TCP) port. default is 64738.</span>
+port=64738
+
+<span class="cmt"># max users. 100 is plenty for a clan.</span>
+users=100
+
+<span class="cmt"># bandwidth per user in bits/sec. 72000 is high quality opus.</span>
+bandwidth=72000</pre>
+            </div>
+            <div class="snippet">
+              <div class="label"><span class="file">apply config</span><button class="cpy" type="button">copy</button></div>
+<pre><span class="ps1">root@voice-host:~$</span> systemctl restart mumble-server
+<span class="ps1">root@voice-host:~$</span> systemctl status mumble-server
+<span class="out">Active: active (running)</span></pre>
+            </div>
+          </li>
+
+          <li>
+            <h4>Set the SuperUser password</h4>
+            <p>Murmur's built-in admin account is called <strong>SuperUser</strong>. It manages channels and permissions from a client. Set its password once, before anything else:</p>
+            <div class="snippet">
+              <div class="label"><span class="file">set superuser password</span><button class="cpy" type="button">copy</button></div>
+<pre><span class="ps1">root@voice-host:~$</span> mumble-server -supw 'pick-a-long-random-password'
+<span class="out">SuperUser password set</span></pre>
+            </div>
+          </li>
+
+          <li id="mumble-firewall">
+            <h4>Firewall and DNS</h4>
+            <p>Murmur listens on port 64738 for UDP (voice) and TCP (control). Open both:</p>
+            <div class="snippet">
+              <div class="label"><span class="file">ufw rules</span><button class="cpy" type="button">copy</button></div>
+<pre><span class="ps1">root@voice-host:~$</span> ufw allow 64738/udp
+<span class="ps1">root@voice-host:~$</span> ufw allow 64738/tcp
+<span class="ps1">root@voice-host:~$</span> ufw reload</pre>
+            </div>
+            <p>Add an A record for <code>voice.yourdomain.com</code> pointing at the VPS IP. Verify it's listening:</p>
+            <div class="snippet">
+              <div class="label"><span class="file">verify</span><button class="cpy" type="button">copy</button></div>
+<pre><span class="ps1">root@voice-host:~$</span> ss -lunp | grep 64738
+<span class="out">udp  UNRECV 0  0  0.0.0.0:64738  users:(("mumble-server",pid=...))</span>
+<span class="ps1">root@voice-host:~$</span> ss -ltnp | grep 64738
+<span class="out">tcp  LISTEN 0  0  0.0.0.0:64738  users:(("mumble-server",pid=...))</span></pre>
+            </div>
+            <div class="callout warn">
+              <span class="tag">cloudflare proxy gotcha</span>
+              <p>If your domain is behind the Cloudflare proxy (orange cloud), do <strong>not</strong> proxy the voice record - it only forwards HTTP/HTTPS, not UDP. Set it to <strong>DNS only</strong> (grey cloud), or just have clients connect to the raw VPS IP. This applies to every guide here.</p>
+            </div>
+          </li>
+
+          <li>
+            <h4>Connect with a client</h4>
+            <p>Grab the official client from <a href="https://www.mumble.info/downloads/" rel="noopener" target="_blank">mumble.info</a>, or Mumla (Android) / MumbleAF (iOS). Run the audio wizard and certificate wizard once, then <strong>Server &rarr; Connect</strong> - address <code>voice.yourdomain.com</code>, port <code>64738</code>. Right-click the server name and <strong>Register</strong> to keep your identity. A self-signed cert warning on first connect is expected; accept it for your own server.</p>
+          </li>
+
+          <li>
+            <h4>Channels and permissions</h4>
+            <p>Log in as <strong>SuperUser</strong> from the client. Right-click the root channel to <strong>Add</strong> channels and <strong>Edit</strong> passwords and limits. The <strong>Groups</strong> and <strong>ACL</strong> tabs set who can do what - build a small admin group once and you rarely log in as SuperUser again. Mumble has no Discord-style roles; think groups of registered users plus per-channel ACLs.</p>
+          </li>
+
+          <li>
+            <h4>Optional: TLS &amp; where to go next</h4>
+            <p>Remove the self-signed warning with a Let's Encrypt cert: <code>certbot certonly --standalone -d voice.yourdomain.com</code>, then point <code>sslCert=</code> and <code>sslKey=</code> at the cert paths in the ini. Worth doing after it's live: back up <code>/var/lib/mumble-server/mumble-server.sqlite</code> (channels, users, ACLs), tune <code>bandwidth</code> down to 40000 for bad connections, and enable positional audio in the client for supported games.</p>
+          </li>
+        </ol>
+      </div>
+
+      <!-- ============ TS3 ============ -->
+      <div class="tab-panel" id="panel-ts3" role="tabpanel" aria-labelledby="tab-ts3" hidden>
+        <div class="panel-intro" id="ts3">
+          <h3>TeamSpeak 3 - the classic community server</h3>
+          <p>A single binary, no package manager, no container. Channels, permissions, file transfer, and a query interface. Lightweight enough for the cheapest box, battle tested for nearly two decades.</p>
+        </div>
+
+        <div class="video-wrap">
+          <div class="video-meta"><span class="live">&#9679;</span> walk-through <span class="yt">youtube</span></div>
+          <div class="video" data-yt="jYReyl-7omQ" data-title="How to self host a TeamSpeak 3 server on a VPS"></div>
+        </div>
+
+        <ol class="steps">
+          <li>
+            <h4>Download and run</h4>
+            <p>Create a dedicated user, then grab the 64-bit Linux server binary. Confirm the current version on the <a href="https://teamspeak.com/en/downloads/#server" rel="noopener" target="_blank">TeamSpeak downloads page</a>.</p>
+            <div class="snippet">
+              <div class="label"><span class="file">setup</span><button class="cpy" type="button">copy</button></div>
+<pre><span class="cmt"># create a dedicated user with no shell login</span>
+<span class="ps1">root@voice-host:~$</span> useradd -m -s /bin/bash teamspeak
+
+<span class="cmt"># become that user and download the server</span>
+<span class="ps1">root@voice-host:~$</span> su - teamspeak
+<span class="ps1">teamspeak@voice-host:~$</span> wget https://files.teamspeak-services.com/releases/server/3.13.7/teamspeak3-server_linux_amd64-3.13.7.tar.bz2
+<span class="ps1">teamspeak@voice-host:~$</span> tar xjf teamspeak3-server_linux_amd64-3.13.7.tar.bz2
+<span class="ps1">teamspeak@voice-host:~$</span> cd teamspeak3-server_linux_amd64
+
+<span class="cmt"># accept the license and create a config file</span>
+<span class="ps1">teamspeak@voice-host:~/teamspeak3-server_linux_amd64$</span> touch .ts3server_license_accepted
+<span class="ps1">teamspeak@voice-host:~/teamspeak3-server_linux_amd64$</span> echo "license_accepted=1" &gt; ts3server.ini
+
+<span class="cmt"># first run. note the serveradmin password and the privileged key.</span>
+<span class="ps1">teamspeak@voice-host:~/teamspeak3-server_linux_amd64$</span> ./ts3server_minimal_runscript.sh inifile=ts3server.ini
+<span class="out">------------------------------------------------------------------
+I M P O R T A N T
+------------------------------------------------------------------
+Server Query Admin Account created
+  loginname= "serveradmin", password= "AaBbCc..."
+ServerAdmin privilege key created, please use it to gain
+serveradmin rights for your virtualserver.
+  token=      r4nD0mPr1v1l3g3k3y...
+------------------------------------------------------------------</span></pre>
+            </div>
+            <div class="callout danger">
+              <span class="tag">save both strings</span>
+              <p>The <code>serveradmin</code> password and the privilege <code>token</code> are printed <strong>only once</strong>. The token promotes your client to owner; the password is for ServerQuery. Copy them somewhere safe right now.</p>
+            </div>
+          </li>
+
+          <li>
+            <h4>Firewall ports</h4>
+            <div class="cmp-wrap" style="max-width:680px">
+              <table class="cmp">
+                <thead><tr><th>Port</th><th>Proto</th><th>Use</th></tr></thead>
+                <tbody>
+                  <tr><td class="col-feat">9987</td><td class="center"><code>UDP</code></td><td>Voice</td></tr>
+                  <tr><td class="col-feat">30033</td><td class="center"><code>TCP</code></td><td>File transfer</td></tr>
+                  <tr><td class="col-feat">10011</td><td class="center"><code>TCP</code></td><td>ServerQuery (admin)</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="snippet">
+              <div class="label"><span class="file">ufw</span><button class="cpy" type="button">copy</button></div>
+<pre><span class="ps1">root@voice-host:~$</span> ufw allow 9987/udp
+<span class="ps1">root@voice-host:~$</span> ufw allow 30033/tcp
+<span class="ps1">root@voice-host:~$</span> ufw allow 10011/tcp
+<span class="ps1">root@voice-host:~$</span> ufw reload</pre>
+            </div>
+            <div class="callout warn">
+              <span class="tag">don't expose 10011</span>
+              <p>ServerQuery is powerful. If you script against it, restrict 10011 to localhost or a small allowlist. Never leave it open to the world on a community box.</p>
+            </div>
+          </li>
+
+          <li>
+            <h4>Claim admin &amp; connect</h4>
+            <p>Install the client from <a href="https://teamspeak.com/en/downloads/" rel="noopener" target="_blank">teamspeak.com</a>. <strong>Connections &rarr; Connect</strong>: address <code>voice.yourdomain.com</code>, port <code>9987</code>, any nickname. Paste the privilege key when prompted - your client is now ServerAdmin. Right-click to create channels, set passwords and codecs, and use <strong>Permissions &rarr; Server Groups</strong> to build admin/mod groups that replace Discord roles.</p>
+          </li>
+
+          <li>
+            <h4>Run as a service</h4>
+            <p>The runscript is for testing. Run it under systemd so it survives reboots:</p>
+            <div class="snippet">
+              <div class="label"><span class="file">/etc/systemd/system/ts3server.service</span><button class="cpy" type="button">copy</button></div>
+<pre>[Unit]
+Description=TeamSpeak 3 Server
+After=network.target
+
+[Service]
+WorkingDirectory=/home/teamspeak/teamspeak3-server_linux_amd64
+User=teamspeak
+Group=teamspeak
+Type=forking
+ExecStart=/home/teamspeak/teamspeak3-server_linux_amd64/ts3server_startscript.sh start inifile=ts3server.ini
+ExecStop=/home/teamspeak/teamspeak3-server_linux_amd64/ts3server_startscript.sh stop
+PIDFile=/home/teamspeak/teamspeak3-server_linux_amd64/ts3server_server.pid
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target</pre>
+            </div>
+            <div class="snippet">
+              <div class="label"><span class="file">enable</span><button class="cpy" type="button">copy</button></div>
+<pre><span class="ps1">root@voice-host:~$</span> systemctl daemon-reload
+<span class="ps1">root@voice-host:~$</span> systemctl enable --now ts3server
+<span class="ps1">root@voice-host:~$</span> systemctl status ts3server
+<span class="out">Active: active (running)</span></pre>
+            </div>
+          </li>
+
+          <li>
+            <h4>Optional: TLS</h4>
+            <p>Point <code>certificate=</code> and <code>certificate_key=</code> at a Let's Encrypt cert in <code>ts3server.ini</code> (same certbot flow as Mumble) and clients stop seeing the warning. Make sure the <code>teamspeak</code> user can read the files, and add a renew hook that restarts the service.</p>
+          </li>
+        </ol>
+      </div>
+
+      <!-- ============ TS6 ============ -->
+      <div class="tab-panel" id="panel-ts6" role="tabpanel" aria-labelledby="tab-ts6" hidden>
+        <div class="panel-intro" id="ts6">
+          <h3>TeamSpeak 6 - the Discord layout, self hosted</h3>
+          <p>The refreshed client: text channels, categories, friends list, presence, and voice in a sidebar that will look familiar. Heavier than Mumble and a touch heavier than TS3, but a full community platform on your hardware.</p>
+        </div>
+
+        <div class="video-wrap">
+          <div class="video-meta"><span class="live">&#9679;</span> walk-through <span class="yt">youtube</span></div>
+          <div class="video" data-yt="231HYGpI5Rg" data-title="How to self host a TeamSpeak 6 server on a VPS"></div>
+        </div>
+
+        <ol class="steps">
+          <li>
+            <h4>Install the server</h4>
+            <p>Reuse the <code>teamspeak</code> user from the TS3 section, then grab the latest Linux server from the <a href="https://github.com/teamspeak/teamspeak6-server/releases" rel="noopener" target="_blank">GitHub releases page</a>. The archive is a <code>.tar.xz</code> that extracts in place - there is no wrapper folder and no runscript in the current build. TS6 is under active development, so names can shift between builds.</p>
+            <div class="snippet">
+              <div class="label"><span class="file">setup</span><button class="cpy" type="button">copy</button></div>
+<pre><span class="ps1">root@voice-host:~$</span> su - teamspeak
+<span class="ps1">teamspeak@voice-host:~$</span> wget &lt;copy the linux-amd64.tar.xz URL from the GitHub releases page&gt;
+<span class="cmt"># paste the archive URL from github.com/teamspeak/teamspeak6-server/releases into wget.</span>
+<span class="ps1">teamspeak@voice-host:~$</span> tar -xf teamspeak6-server-linux-amd64.tar.xz
+
+<span class="cmt"># accept the license. tsserver runs from the directory you extracted into.</span>
+<span class="ps1">teamspeak@voice-host:~$</span> touch .tsserver_license_accepted
+
+<span class="cmt"># first run. save the serveradmin password and apikey - printed only once.</span>
+<span class="ps1">teamspeak@voice-host:~$</span> ./tsserver
+<span class="out">------------------------------------------------------------------
+                      I M P O R T A N T
+------------------------------------------------------------------
+               Server Query Admin Account created
+         loginname= "serveradmin", password= "AaBbCc..."
+         apikey= "r4nD0mAp1k3y..."
+------------------------------------------------------------------</span></pre>
+            </div>
+          </li>
+
+          <li>
+            <h4>Firewall ports</h4>
+            <p>Same family as TS3, plus HTTPS for the account web and TSDNS:</p>
+            <div class="cmp-wrap" style="max-width:680px">
+              <table class="cmp">
+                <thead><tr><th>Port</th><th>Proto</th><th>Use</th></tr></thead>
+                <tbody>
+                  <tr><td class="col-feat">9987</td><td class="center"><code>UDP</code></td><td>Voice</td></tr>
+                  <tr><td class="col-feat">30033</td><td class="center"><code>TCP</code></td><td>File transfer</td></tr>
+                  <tr><td class="col-feat">10011</td><td class="center"><code>TCP</code></td><td>ServerQuery</td></tr>
+                  <tr><td class="col-feat">443 / 80</td><td class="center"><code>TCP</code></td><td>TSDNS / account web (optional)</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="snippet">
+              <div class="label"><span class="file">ufw</span><button class="cpy" type="button">copy</button></div>
+<pre><span class="ps1">root@voice-host:~$</span> ufw allow 9987/udp
+<span class="ps1">root@voice-host:~$</span> ufw allow 30033/tcp
+<span class="ps1">root@voice-host:~$</span> ufw allow 10011/tcp
+<span class="ps1">root@voice-host:~$</span> ufw reload</pre>
+            </div>
+            <p>Same caveats as TS3: keep <code>10011</code> restricted and grey-cloud the voice subdomain (UDP does not go through the Cloudflare proxy).</p>
+          </li>
+
+          <li>
+            <h4>Connect and claim</h4>
+            <p>The TS6 client uses a global TeamSpeak account for friends and presence - separate from your server admin credentials. First launch walks you through creating it. Then <strong>Connections &rarr; Connect</strong>, and use the serveradmin password or the apikey from first run to manage the server, then build categories with voice and text channels inside. Find people by account handle to add friends and see cross-server presence.</p>
+          </li>
+
+          <li>
+            <h4>Run as a service</h4>
+            <p>There are no runscripts in the current build - the <code>tsserver</code> binary is the whole server and it runs in the foreground. systemd keeps it alive:</p>
+            <div class="snippet">
+              <div class="label"><span class="file">/etc/systemd/system/ts6server.service</span><button class="cpy" type="button">copy</button></div>
+<pre>[Unit]
+Description=TeamSpeak 6 Server
+After=network.target
+
+[Service]
+WorkingDirectory=/home/teamspeak
+User=teamspeak
+Group=teamspeak
+Type=simple
+ExecStart=/home/teamspeak/tsserver
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target</pre>
+            </div>
+            <div class="snippet">
+              <div class="label"><span class="file">enable</span><button class="cpy" type="button">copy</button></div>
+<pre><span class="ps1">root@voice-host:~$</span> systemctl daemon-reload
+<span class="ps1">root@voice-host:~$</span> systemctl enable --now ts6server
+<span class="ps1">root@voice-host:~$</span> systemctl status ts6server
+<span class="out">Active: active (running)</span></pre>
+            </div>
+          </li>
+
+          <li>
+            <h4>TS6 vs TS3 - which one</h4>
+            <div class="cmp-wrap" style="max-width:780px">
+              <table class="cmp">
+                <thead><tr><th></th><th>TeamSpeak 3</th><th>TeamSpeak 6</th></tr></thead>
+                <tbody>
+                  <tr><td class="col-feat">Layout</td><td>Channel tree, chat tabs</td><td>Categories + sidebar, Discord shaped</td></tr>
+                  <tr><td class="col-feat">Text chat</td><td>Per channel, basic</td><td>Full text channels inside categories</td></tr>
+                  <tr><td class="col-feat">Friends / presence</td><td>Manual, per server</td><td>Global friends list, cross server presence</td></tr>
+                  <tr><td class="col-feat">Server RAM at idle</td><td>~40 MB</td><td>~120 MB</td></tr>
+                  <tr><td class="col-feat">VPS sweet spot</td><td>1 GB cheap box</td><td>2 GB box</td></tr>
+                  <tr><td class="col-feat">Best for</td><td>Pure voice, classic vibe</td><td>Community hangout, text + voice + friends</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="callout tip">
+              <span class="tag">both at once</span>
+              <p>Murmur, TS3, and TS6 all fit on a single 2 GB box. One IP, three ports, three communities if you want. Lots of people run both: Mumble for rostered ops, TS6 for the casual hangout.</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================= HOSTS ============================= -->
+<section class="section" id="hosts">
+  <div class="center">
+    <div class="sec-head reveal">
+      <span class="pill"><span class="dot"></span> where to run it</span>
+      <h2>Two VPS hosts worth your money</h2>
+      <p>You don't need anything fancy. A 1 GB Linux box runs Mumble or TeamSpeak 3 with room to spare. These two are the picks I use.</p>
+    </div>
+
+    <div class="grid grid-2">
+      <article class="host-card contabo reveal">
+        <div class="top">
+          <img class="host-logo" src="/assets/img/contabo.webp" alt="Contabo" width="32" height="32">
+          <div>
+            <h3>Contabo</h3>
+            <p class="blurb">Best price per GB on the market. Loads of RAM for big communities and multiple servers on one box.</p>
+          </div>
+        </div>
+        <div class="specs">
+          <div><span class="k">vCPU</span><span class="v"><b>4</b></span></div>
+          <div><span class="k">RAM</span><span class="v"><b>8 GB</b></span></div>
+          <div><span class="k">Storage</span><span class="v">100 GB SSD</span></div>
+          <div><span class="k">From</span><span class="v"><b>&euro;5.50/mo</b></span></div>
+        </div>
+        <ul>
+          <li>Runs every server in these guides simultaneously</li>
+          <li>EU, US, Asia, and Singapore regions</li>
+          <li>Cheapest price for the specs you get</li>
+        </ul>
+        <div class="pc">
+          <div class="col good">
+            <h4>&plus; best for</h4>
+            <ul>
+              <li>One box, every server, spare headroom</li>
+              <li>Big clan voice with file transfer on</li>
+              <li>Tight monthly budget</li>
+            </ul>
+          </div>
+          <div class="col bad">
+            <h4>&minus; watch for</h4>
+            <ul>
+              <li>Monthly billed, not hourly</li>
+              <li>Setup fee on some short cycles</li>
+              <li>CPU is shared, bursts vary</li>
+            </ul>
+          </div>
+        </div>
+        <p class="cta"><a class="btn btn-primary" href="https://websplaining.com/contabo" rel="sponsored nofollow noopener" target="_blank">Get Contabo &rarr;</a></p>
+      </article>
+
+      <article class="host-card kamatera reveal">
+        <div class="top">
+          <img class="host-logo" src="/assets/img/kamatera-blue.png" alt="Kamatera" width="32" height="32">
+          <div>
+            <h3>Kamatera</h3>
+            <p class="blurb">Hourly billing, 13 data centers, custom configs. Great for a tiny box or a region close to your players.</p>
+          </div>
+        </div>
+        <div class="specs">
+          <div><span class="k">vCPU</span><span class="v"><b>1+</b></span></div>
+          <div><span class="k">RAM</span><span class="v"><b>1 GB+</b></span></div>
+          <div><span class="k">Storage</span><span class="v">SSD / NVMe</span></div>
+          <div><span class="k">From</span><span class="v"><b>$4/mo</b></span></div>
+        </div>
+        <ul>
+          <li>Per-second billing, perfect for a LAN weekend</li>
+          <li>Configure CPU and RAM to the exact number</li>
+          <li>13 regions, 30 day free trial, no commitment</li>
+        </ul>
+        <div class="pc">
+          <div class="col good">
+            <h4>&plus; best for</h4>
+            <ul>
+              <li>Nailing the lowest ping in your region</li>
+              <li>Short lived or resizeable voice boxes</li>
+              <li>Trying a server out before going long</li>
+            </ul>
+          </div>
+          <div class="col bad">
+            <h4>&minus; watch for</h4>
+            <ul>
+              <li>Specs cost more per GB than Contabo</li>
+              <li>Custom configs add up fast if you over-provision</li>
+              <li>Traffic allowance lowers at higher tiers</li>
+            </ul>
+          </div>
+        </div>
+        <p class="cta"><a class="btn btn-primary" href="https://kamatera.sjv.io/c/1245219/3024352/36439" rel="sponsored nofollow noopener" target="_blank">Get Kamatera &rarr;</a></p>
+      </article>
+    </div>
+
+    <div class="right-size reveal">
+      <h3>Right size it</h3>
+      <p>Mumble and TeamSpeak 3 idle around 20-40 MB each. TS6 sits closer to 120 MB plus chat history. A 1 GB box handles Mumble + TS3 side by side. Move to 2 GB once you add TS6 and a web server.</p>
+      <p class="btn-row" style="margin:0">
+        <a class="btn btn-primary" href="#mumble">Set up Mumble &rarr;</a>
+        <a class="btn" href="#ts3">Set up TeamSpeak</a>
+      </p>
+    </div>
+
+    <p class="disclosure">Disclosure: the host links above are affiliate referrals. They cost you nothing and keep this site ad free and tracker free.</p>
+  </div>
+</section>
+
+<!-- ============================= FAQ ============================= -->
+<section class="section" id="faq">
+  <div class="center">
+    <div class="sec-head reveal">
+      <span class="pill"><span class="dot"></span> quick answers</span>
+      <h2>Frequently asked questions</h2>
+      <p>The things people ask before they self host. Short versions, the details are in the guides above.</p>
+    </div>
+
+    <div class="faq reveal">
+      <details>
+        <summary>What is Mumble?</summary>
+        <p>Mumble is open source voice chat built for low latency and minimal overhead. The server software is called Murmur, it uses the Opus codec, supports positional audio in games, and idles around 20 MB of RAM. See the <a href="#mumble">Mumble setup guide</a>.</p>
+      </details>
+      <details>
+        <summary>Mumble vs TeamSpeak - which should I pick?</summary>
+        <p>Mumble if you want the lightest, lowest latency pure voice server. TeamSpeak 3 if you want the classic channel and permission server. TeamSpeak 6 if you want a Discord style layout with text channels, categories, and a friends list. Many groups run both: Mumble for ops, TS6 for the casual hangout. <a href="#compare">See the full comparison</a>.</p>
+      </details>
+      <details>
+        <summary>Do I need a VPS?</summary>
+        <p>Yes. A Linux VPS you control is the point of self hosting - you rent the box, you own the server. Any 1 GB Debian or Ubuntu VPS runs Mumble or TeamSpeak 3 with room to spare. <a href="#hosts">See the host picks</a>.</p>
+      </details>
+      <details>
+        <summary>What does self hosting cost?</summary>
+        <p>Just the VPS, typically $4-$6 per month - less than a single Discord Nitro subscription. The software is free: Mumble is open source, and TeamSpeak is free for personal and small clan use. See the <a href="https://teamspeak.com/en/pricing/" rel="noopener" target="_blank">official TeamSpeak licensing page</a> for the details.</p>
+      </details>
+      <details>
+        <summary>Is self hosting really free?</summary>
+        <p>The servers are free to run. You pay for the VPS hardware and for your time setting it up - roughly ten minutes per server with these guides. There are no per-user fees and nothing is behind a paywall like Nitro.</p>
+      </details>
+      <details>
+        <summary>Can I run all three servers at once?</summary>
+        <p>Yes. Murmur, TeamSpeak 3, and TeamSpeak 6 all fit on a single 2 GB box: one IP, three ports, three communities if you want. Each has its own systemd service.</p>
+      </details>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="site-footer">
+  <div class="center footer-grid">
+    <div>
+      <a class="brand" href="#top" style="font-size:1rem">discord<span class="dot">-</span>alternative</a>
+      <p class="brand-line">Open voice and chat you actually own. Self host Mumble and TeamSpeak on a VPS you control.</p>
+    </div>
+    <div>
+      <h5>Guides</h5>
+      <ul>
+        <li><a href="#mumble">Mumble server</a></li>
+        <li><a href="#ts3">TeamSpeak 3 server</a></li>
+        <li><a href="#ts6">TeamSpeak 6 server</a></li>
+      </ul>
+    </div>
+    <div>
+      <h5>Info</h5>
+      <ul>
+        <li><a href="#why">Why ditch Discord</a></li>
+        <li><a href="#compare">Comparison</a></li>
+        <li><a href="#hosts">VPS hosts</a></li>
+        <li><a href="#faq">FAQ</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>self hosted &middot; no trackers &middot; <span class="pulse">no discord</span></span>
+    <span>&copy; 2026 discord-alternative.com</span>
+  </div>
+</footer>
+
+<script src="/assets/js/main-v5.js" defer></script>
+</body>
+</html>
