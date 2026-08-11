@@ -16,6 +16,17 @@ Ditch Discord. A VPS and ten minutes gets you a Mumble or TeamSpeak server you a
 - **VPS host picks** - Contabo and Kamatera, with specs and pricing
 - **FAQ** - the common questions answered
 
+## VPS host picks
+
+The two hosts these guides run on:
+
+[<img src="assets/img/contabo.webp" alt="Contabo" width="150">](https://websplaining.com/contabo) &nbsp;&nbsp; [<img src="assets/img/kamatera-blue.png" alt="Kamatera" width="150">](https://kamatera.sjv.io/c/1245219/3024352/36439)
+
+- **Contabo** - best price per GB, from $5.50/mo → https://websplaining.com/contabo
+- **Kamatera** - hourly billing, from $4/mo → https://kamatera.sjv.io/c/1245219/3024352/36439
+
+*Disclosure: the host links above are affiliate referrals. They cost you nothing and keep this site ad free and tracker free.*
+
 ## Tech
 
 - Vanilla HTML + CSS + JS - zero frameworks, zero trackers, no build step
